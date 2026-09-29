@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 import mysql.connector
 
 app = Flask(__name__)
@@ -22,7 +22,7 @@ def productos():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id_producto AS ID_Producto, nombre AS Nombre, categoria AS Categoria, precio AS Precio, stock AS Stock FROM Producto")
     lista_productos = cursor.fetchall()
-    cursor.close()
+    cursor.close()  
     conn.close()
     return render_template('productos.html', productos=lista_productos)
 
@@ -31,7 +31,6 @@ def pedidos():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # CAST convierte los textos VARCHAR a números DECIMAL/DECIMAL para la multiplicación
     query = """
         SELECT 
             p.id_pedido AS ID_Pedido,
@@ -49,6 +48,108 @@ def pedidos():
     cursor.close()
     conn.close()
     return render_template('pedidos.html', pedidos=lista_pedidos)
+
+
+@app.route('/agregar_producto', methods=['GET', 'POST'])
+def agregar_producto():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        categoria = request.form['categoria']
+        precio = request.form['precio']
+        stock = request.form['stock']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Producto (nombre, categoria, precio, stock) VALUES (%s, %s, %s, %s)", (nombre, categoria, precio, stock))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/productos')
+    return render_template('agregar_producto.html')
+
+@app.route('/agregar_pedido', methods=['GET', 'POST'])
+def agregar_pedido():
+    if request.method == 'POST':
+        id_pedido = request.form['id_pedido']
+        cliente = request.form['cliente']
+        fecha = request.form['fecha']
+        estado = request.form['estado']
+        total = request.form['total']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Pedido (id_pedido, id_cliente, fecha_pedido, estado, total) VALUES (%s, %s, %s, %s, %s)", (id_pedido, cliente, fecha, estado, total))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/pedidos')
+    return render_template('agregar_pedido.html')
+
+@app.route('/actualizar_producto/<int:id_producto>', methods=['GET', 'POST'])
+def actualizar_producto(id_producto):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        categoria = request.form['categoria']
+        precio = request.form['precio']
+        stock = request.form['stock']
+        
+        cursor.execute("UPDATE Producto SET nombre = %s, categoria = %s, precio = %s, stock = %s WHERE id_producto = %s",
+                       (nombre, categoria, precio, stock, id_producto))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/productos')
+    
+    cursor.execute("SELECT * FROM Producto WHERE id_producto = %s", (id_producto,))
+    producto = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template('actualizar_producto.html', p=producto)
+
+@app.route('/actualizar_pedido/<int:id_pedido>', methods=['GET', 'POST'])
+def actualizar_pedido(id_pedido):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    if request.method == 'POST':
+        id_cliente = request.form['cliente']
+        fecha_pedido = request.form['fecha']
+        estado = request.form['estado']
+        total = request.form['total']
+        
+        cursor.execute("UPDATE Pedido SET id_cliente = %s, fecha_pedido = %s, estado = %s, total = %s WHERE id_pedido = %s",
+                       (id_cliente, fecha_pedido, estado, total, id_pedido))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/pedidos')
+    
+    cursor.execute("SELECT * FROM Pedido WHERE id_pedido = %s", (id_pedido,))
+    pedido = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template('actualizar_pedido.html', p=pedido)
+
+@app.route('/borrar_producto/<int:id_producto>', methods=['POST'])
+def borrar_producto(id_producto):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Producto WHERE id_producto = %s", (id_producto,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect('/productos')
+
+@app.route('/borrar_pedido/<int:id_pedido>', methods=['POST'])
+def borrar_pedido(id_pedido):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Pedido WHERE id_pedido = %s", (id_pedido,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect('/pedidos')
 
 if __name__ == '__main__':
     app.run(debug=True)

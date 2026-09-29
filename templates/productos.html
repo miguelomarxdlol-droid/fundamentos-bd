@@ -4,33 +4,83 @@
     <meta charset="UTF-8">
     <title>Productos - Cafetería Universitaria</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // Función para manejar las acciones desde los botones de afuera
+        function enviarAccion(accion) {
+            const seleccionado = document.querySelector('input[name="id_producto_sel"]:checked');
+            
+            if (accion === 'agregar') {
+                window.location.href = '/agregar_producto';
+                return;
+            }
+
+            if (!seleccionado) {
+                alert('Por favor, selecciona un producto de la lista para ' + accion + '.');
+                return;
+            }
+
+            const id = seleccionado.value;
+
+            if (accion === 'actualizar') {
+                window.location.href = '/actualizar_producto/' + id;
+            } else if (accion === 'borrar') {
+                if (confirm('¿Seguro que deseas borrar el producto ID ' + id + '?')) {
+                    const form = document.getElementById('form-productos');
+                    form.action = '/borrar_producto/' + id;
+                    form.method = 'POST';
+                    form.submit();
+                }
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Lista de Productos</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in productos %}
-                <tr>
-                    <td>{{ p.ID_Producto }}</td>
-                    <td>{{ p.Nombre }}</td>
-                    <td>{{ p.Categoria }}</td>
-                    <td>${{ p.Precio }}</td>
-                    <td>{{ p.Stock }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <form id="form-productos">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sel.</th> <!-- Columna para elegir la fila -->
+                        <th>ID</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td>
+                            <input type="radio" name="id_producto_sel" value="{{ p.ID_Producto }}">
+                        </td>
+                        <td>{{ p.ID_Producto }}</td>
+                        <td>{{ p.Nombre }}</td>
+                        <td>{{ p.Categoria }}</td>
+                        <td>${{ p.Precio }}</td>
+                        <td>{{ p.Stock }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">No hay productos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
         <br>
+
+        <!-- LOS 3 BOTONES FUERA DE LA TABLA -->
+        <div class="btn-group">
+            <button type="button" class="btn" onclick="enviarAccion('agregar')">Agregar</button>
+            <button type="button" class="btn" onclick="enviarAccion('actualizar')">Actualizar</button>
+            <button type="button" class="btn" onclick="enviarAccion('borrar')">Borrar</button>
+        </div>
+
+        <br><br>
         <a href="/" class="btn">Volver al Inicio</a>
     </div>
 </body>

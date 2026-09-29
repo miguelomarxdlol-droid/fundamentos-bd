@@ -4,37 +4,84 @@
     <meta charset="UTF-8">
     <title>Pedidos - Cafetería</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // Función para redirigir según el botón presionado afuera
+        function enviarAccion(accion) {
+            const seleccionado = document.querySelector('input[name="id_pedido_sel"]:checked');
+            
+            if (accion === 'agregar') {
+                window.location.href = '/agregar_pedido';
+                return;
+            }
+
+            if (!seleccionado) {
+                alert('Por favor, selecciona un pedido de la lista para ' + accion + '.');
+                return;
+            }
+
+            const id = seleccionado.value;
+
+            if (accion === 'actualizar') {
+                window.location.href = '/actualizar_pedido/' + id;
+            } else if (accion === 'borrar') {
+                if (confirm('¿Seguro que deseas borrar el pedido ID ' + id + '?')) {
+                    const form = document.getElementById('form-pedidos');
+                    form.action = '/borrar_pedido/' + id;
+                    form.method = 'POST';
+                    form.submit();
+                }
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Lista de Pedidos</h1>
         <a href="/" class="btn-back">← Volver al Inicio</a>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID pedido</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in pedidos %}
-                <tr>
-                    <td>{{ p.ID_Pedido }}</td>
-                    <td>{{ p.Cliente }}</td>
-                    <td>{{ p.Fecha }}</td>
-                    <td>{{ p.Estado }}</td>
-                    <td>${{ "%.2f"|format(p.Total) }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5">No hay pedidos registrados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <br><br>
+
+        <form id="form-pedidos">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sel.</th> <!-- Columna para elegir la fila -->
+                        <th>ID pedido</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pedidos %}
+                    <tr>
+                        <td>
+                            <input type="radio" name="id_pedido_sel" value="{{ p.ID_Pedido }}">
+                        </td>
+                        <td>{{ p.ID_Pedido }}</td>
+                        <td>{{ p.Cliente }}</td>
+                        <td>{{ p.Fecha }}</td>
+                        <td>{{ p.Estado }}</td>
+                        <td>${{ "%.2f"|format(p.Total) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">No hay pedidos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        <br>
+
+        <!-- LOS 3 BOTONES FUERA DE LA TABLA -->
+        <div class="btn-group">
+            <button type="button" class="btn" onclick="enviarAccion('agregar')">Agregar</button>
+            <button type="button" class="btn" onclick="enviarAccion('actualizar')">Actualizar</button>
+            <button type="button" class="btn" onclick="enviarAccion('borrar')">Borrar</button>
+        </div>
+
     </div>
 </body>
 </html>
