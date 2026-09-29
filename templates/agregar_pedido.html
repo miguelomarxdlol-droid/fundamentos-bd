@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Pedido - Cafetería</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Registrar Nuevo Pedido</h1>
+        <a href="/pedidos" class="btn-back">← Volver a la Lista</a>
+        <br><br>
+
+        <form action="{{ url_for('agregar_pedido') }}" method="POST">
+            
+            <div class="form-group">
+                <label for="id_cliente">Cliente:</label>
+                <select id="id_cliente" name="id_cliente" required>
+                    <option value="">-- Selecciona un Cliente --</option>
+                    {% for c in clientes %}
+                        <option value="{{ c.id_cliente }}">{{ c.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">Fecha del Pedido:</label>
+                <input type="date" id="fecha" name="fecha" required>
+            </div>
+
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" name="estado" required>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En proceso">En proceso</option>
+                    <option value="Completado">Completado</option>
+                    <option value="Cancelado">Cancelado</option>
+                </select>
+            </div>
+
+            <hr>
+            <h3>Agregar Ítem al Pedido</h3>
+
+            <div class="form-group">
+                <label for="id_producto">Producto:</label>
+                <select id="id_producto" name="id_producto" required>
+                    <option value="">-- Selecciona un Producto --</option>
+                    {% for p in productos %}
+                        <option value="{{ p.id_producto }}">{{ p.nombre }} - ${{ p.precio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cantidad">Cantidad:</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
+            </div>
+
+            <br>
+            <button type="submit" class="btn">Guardar Pedido</button>
+        </form>
+    </div>
+</body>
+</html>
