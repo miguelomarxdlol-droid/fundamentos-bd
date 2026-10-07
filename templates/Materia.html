@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Materias</title>
+    <script>
+        function actualizarDato(event, form, url) {
+            event.preventDefault();
+            fetch(url, { method: 'POST', body: new FormData(form) })
+            .then(res => res.json())
+            .then(data => alert(data.message));
+        }
+    </script>
+</head>
+<body>
+    <a href="/">← Volver al Inicio</a>
+    <h2>Registrar Materia</h2>
+    <form action="/materia" method="POST">
+        <label>Nombre de la Materia:</label><br>
+        <input type="text" name="nombre_materia" required>
+        <button type="submit">Guardar Materia</button>
+    </form>
+
+    <hr>
+    <h2>Lista de Materias</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Materia</th>
+            <th>Acciones</th>
+        </tr>
+        {% for mat in materias %}
+        <tr>
+            <td>{{ mat.id_materia }}</td>
+            <form onsubmit="actualizarDato(event, this, '/editar_materia/{{ mat.id_materia }}')">
+                <td><input type="text" name="nombre_materia" value="{{ mat.nombre_materia }}" required></td>
+                <td>
+                    <button type="submit">Actualizar Dato</button>
+                    <a href="/eliminar_materia/{{ mat.id_materia }}" onclick="return confirm('¿Eliminar registro?')">Eliminar</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

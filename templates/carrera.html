@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carreras</title>
+    <script>
+        function actualizarDato(event, form, url) {
+            event.preventDefault();
+            fetch(url, { method: 'POST', body: new FormData(form) })
+            .then(res => res.json())
+            .then(data => alert(data.message));
+        }
+    </script>
+</head>
+<body>
+    <a href="/">← Volver al Inicio</a>
+    <h2>Registrar Carrera</h2>
+    <form action="/carrera" method="POST">
+        <label>Nombre de la Carrera:</label><br>
+        <input type="text" name="carrera" required><br><br>
+        <label>Seleccionar Coordinador:</label><br>
+        <select name="coordinador_id" required>
+            <option value="">-- Seleccione --</option>
+            {% for c in coordinadores %}
+                <option value="{{ c.id_coordinador }}">{{ c.nombre_coordinador }}</option>
+            {% endfor %}
+        </select><br><br>
+        <button type="submit">Guardar Carrera</button>
+    </form>
+
+    <hr>
+    <h2>Lista de Carreras</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Carrera</th>
+            <th>Coordinador</th>
+            <th>Acciones</th>
+        </tr>
+        {% for car in carreras %}
+        <tr>
+            <td>{{ car.id_carrera }}</td>
+            <form onsubmit="actualizarDato(event, this, '/editar_carrera/{{ car.id_carrera }}')">
+                <td><input type="text" name="carrera" value="{{ car.carrera }}" required></td>
+                <td>
+                    <select name="coordinador_id" required>
+                        {% for c in coordinadores %}
+                            <option value="{{ c.id_coordinador }}" {% if c.id_coordinador == car.coordinador_id_coordinador %}selected{% endif %}>
+                                {{ c.nombre_coordinador }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button type="submit">Actualizar Dato</button>
+                    <a href="/eliminar_carrera/{{ car.id_carrera }}" onclick="return confirm('¿Eliminar registro?')">Eliminar</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

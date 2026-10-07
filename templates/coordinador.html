@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Coordinadores</title>
+    <script>
+        function actualizarDato(event, form, url) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(err => console.error(err));
+        }
+    </script>
+</head>
+<body>
+    <a href="/">← Volver al Inicio</a>
+    <h2>Registrar Coordinador</h2>
+    <form action="/coordinador" method="POST">
+        <label>Nombre del Coordinador:</label><br>
+        <input type="text" name="nombre_coordinador" required>
+        <button type="submit">Guardar</button>
+    </form>
+
+    <hr>
+    <h2>Lista de Coordinadores</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+        {% for coord in coordinadores %}
+        <tr>
+            <td>{{ coord.id_coordinador }}</td>
+            <form onsubmit="actualizarDato(event, this, '/editar_coordinador/{{ coord.id_coordinador }}')">
+                <td>
+                    <input type="text" name="nombre_coordinador" value="{{ coord.nombre_coordinador }}" required>
+                </td>
+                <td>
+                    <button type="submit">Actualizar Dato</button>
+                    <a href="/eliminar_coordinador/{{ coord.id_coordinador }}" onclick="return confirm('¿Eliminar registro?')">Eliminar</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

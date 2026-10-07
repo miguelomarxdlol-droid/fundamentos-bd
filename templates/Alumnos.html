@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alumnos</title>
+    <script>
+        function actualizarDato(event, form, url) {
+            event.preventDefault();
+            fetch(url, { method: 'POST', body: new FormData(form) })
+            .then(res => res.json())
+            .then(data => alert(data.message));
+        }
+    </script>
+</head>
+<body>
+    <a href="/">← Volver al Inicio</a>
+    <h2>Registrar Alumno</h2>
+    <form action="/alumnos" method="POST">
+        <label>Nombre del Alumno:</label><br>
+        <input type="text" name="nombre" required><br><br>
+        <label>Carrera:</label><br>
+        <select name="carrera_id" required>
+            <option value="">-- Seleccione Carrera --</option>
+            {% for c in carreras %}
+                <option value="{{ c.id_carrera }}">{{ c.carrera }}</option>
+            {% endfor %}
+        </select><br><br>
+        <button type="submit">Guardar Alumno</button>
+    </form>
+
+    <hr>
+    <h2>Lista de Alumnos</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Carrera</th>
+            <th>Acciones</th>
+        </tr>
+        {% for al in alumnos %}
+        <tr>
+            <td>{{ al.id_Alumnos }}</td>
+            <form onsubmit="actualizarDato(event, this, '/editar_alumno/{{ al.id_Alumnos }}')">
+                <td><input type="text" name="nombre" value="{{ al.nombre }}" required></td>
+                <td>
+                    <select name="carrera_id" required>
+                        {% for c in carreras %}
+                            <option value="{{ c.id_carrera }}" {% if c.id_carrera == al.carrera_id_carrera %}selected{% endif %}>
+                                {{ c.carrera }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button type="submit">Actualizar Dato</button>
+                    <a href="/eliminar_alumno/{{ al.id_Alumnos }}" onclick="return confirm('¿Eliminar registro?')">Eliminar</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
